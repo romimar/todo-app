@@ -40,20 +40,6 @@ const Form = ({ title, description, data, onSubmit }: FormProps) => {
     const onSendingData = (data: FormValues) => {
         onSubmit(data);
         form.reset();
-
-        // try {
-        //     setIsSaving(true);
-        //     console.log("data", data);
-        //     // if (blog)
-        //     //     await axios.patch('/api/blogs/' + blog.id, data);
-        //     // else
-        //     //     await axios.post('/api/blogs', data);
-        //     // router.push('/blogs');
-        //     // router.refresh();
-        // } catch (error) {
-        //     setIsSaving(false);
-        //     setError(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
-        // }
     };
 
     return (
