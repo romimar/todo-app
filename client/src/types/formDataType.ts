@@ -8,7 +8,7 @@ interface Item {
     id: number,
     title: string | undefined,
     description: string | undefined,
-    date: Date | undefined,
+    date?: Date | string;
     isDone: boolean,
 }
 

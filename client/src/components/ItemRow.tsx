@@ -7,7 +7,7 @@ import {
     DialogTrigger
 } from "./ui/dialog";
 import { useState } from "react";
-import type { Item } from "@/types/formDataType";
+import type { Item, FormDataType } from "@/types/formDataType";
 import { CgRadioChecked } from "react-icons/cg";
 import { CgRadioCheck } from "react-icons/cg";
 import { RiDeleteBinLine } from "react-icons/ri";
@@ -36,6 +36,16 @@ const ItemList = ({
 }: Props) => {
     const [open, setOpen] = useState(false);
 
+    const saveItem = (data: Item | FormDataType) => {
+        onSaveEditedItem && onSaveEditedItem(id, {
+            ...item,
+            title: data.title,
+            description: data.description,
+            date: data.date,
+        });
+        setOpen(false);
+    }
+
     return (
         <>
             <Toaster position="top-right" richColors className="pointer-events-auto" />
@@ -51,7 +61,10 @@ const ItemList = ({
                         <div className={`ml-4 text-lg font-semibold ${isDone ? 'text-slate-400' : ''}`}>{item.title}</div>
                         <div className={`ml-4 text-[16px] ${isDone ? 'text-slate-400' : ''}`}>{item.description}</div>
                         <div className={`ml-4 mt-1 text-[14px] text-gray-500 ${isDone ? 'text-slate-400' : ''}`}>
-                            {item.date ? `Due date: ${item.date?.toLocaleDateString('sv-SE')}` : ''}
+                            {item.date
+                                ? `Due date: ${(typeof item.date === 'string' ? new Date(item.date) : item.date).toLocaleDateString('sv-SE')}`
+                                : ''
+                            }
                         </div>
                     </div>
                 </div>
@@ -74,26 +87,7 @@ const ItemList = ({
                                         title="Edit Item"
                                         description="Modify the details of your ToDo item."
                                         data={item}
-                                        onSubmit={(data) => {
-                                            onSaveEditedItem && onSaveEditedItem(id, {
-                                                ...item,
-                                                title: data.title,
-                                                description: data.description,
-                                                date: data.date,
-                                            });
-                                            setOpen(false);
-                                            toast.promise<{ name: string }>(
-                                                () =>
-                                                    new Promise((resolve) =>
-                                                        setTimeout(() => resolve({ name: "Event" }), 1000)
-                                                    ),
-                                                {
-                                                    loading: "Loading...",
-                                                    success: `Item "${data.title}" has been updated.`,
-                                                    error: "Error updating the item.",
-                                                }
-                                            )
-                                        }}
+                                        onSubmit={saveItem}
                                     />
                                 </div>
                             </DialogContent>

@@ -36,10 +36,6 @@ const swaggerOptions = {
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-// Debug: Log the generated spec
-console.log('Swagger spec paths:', Object.keys(swaggerSpec.paths || {}));
-console.log('Full spec:', JSON.stringify(swaggerSpec, null, 2));
-
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const items = [];

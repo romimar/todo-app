@@ -11,17 +11,18 @@ import { toast } from "sonner";
 import axios from 'axios';
 import { Button } from "./ui/button";
 
-const getTime = (d?: Date): number => {
+const getTime = (d?: Date | string): number => {
     if (!d) return Number.MAX_SAFE_INTEGER;
-    if (isNaN(d.getTime())) return Number.MAX_SAFE_INTEGER;
-    return d.getTime();
+    const date = typeof d === 'string' ? new Date(d) : d;
+    if (isNaN(date.getTime())) return Number.MAX_SAFE_INTEGER;
+    return date.getTime();
 };
 
 const compareDueDate = (a: Item, b: Item) => getTime(a.date) - getTime(b.date);
 
 const parseItemDate = (item: Item): Item => {
     let date: Date | undefined;
-    const raw = item.date as unknown as any;
+    const raw = item.date;
     if (raw) {
         if (raw instanceof Date) {
             date = raw;
@@ -88,7 +89,9 @@ const TodoContainer = () => {
             const response = await axios.post('/api/items', {
                 title: formData.title,
                 description: formData.description,
-                date: formData.date ? formData.date.toISOString() : undefined,
+                date: formData.date
+                    ? (typeof formData.date === 'string' ? formData.date : formData.date.toISOString())
+                    : undefined,
                 isDone: false,
             });
 
@@ -105,7 +108,9 @@ const TodoContainer = () => {
         try {
             const response = await axios.put(`/api/items/${id}`, {
                 ...data,
-                date: data.date ? data.date.toISOString() : undefined
+                date: data.date
+                    ? (typeof data.date === 'string' ? data.date : data.date.toISOString())
+                    : undefined
             });
 
             const updated = parseItemDate(response.data);
@@ -135,7 +140,9 @@ const TodoContainer = () => {
             const response = await axios.put(`/api/items/${id}`, {
                 ...item,
                 isDone: !item.isDone,
-                date: item.date ? item.date.toISOString() : undefined
+                date: item.date
+                    ? (typeof item.date === 'string' ? item.date : item.date.toISOString())
+                    : undefined
             });
             const updatedItem = parseItemDate(response.data);
             setItemsList(prev => prev.map(i => i.id === id ? updatedItem : i));
@@ -152,23 +159,6 @@ const TodoContainer = () => {
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-    };
-
-    const populateList = async () => {
-        try {
-            const response = await axios.post('/api/items', {
-                title: "Sample Item",
-                description: "This is a sample TODO item",
-                date: new Date().toISOString(),
-                isDone: false,
-            });
-
-            setItemsList(prev => [...prev, parseItemDate(response.data)]);
-            toast.success("Sample Item has been added.");
-        } catch (error) {
-            console.error("Error adding item:", error);
-            toast.error("Error adding the item.");
-        }
     };
 
     return (
@@ -213,21 +203,11 @@ const TodoContainer = () => {
                                 setPressed(value);
                                 setCurrentPage(1);
                             }}
-                            className="data-[state=on]:bg-transparent data-[state=on]:*:[svg]:fill-amber-900 data-[state=on]:*:[svg]:stroke-amber-900"
+                            className="data-[state=on]:bg-transparent cursor-pointer data-[state=on]:*:[svg]:fill-amber-900 data-[state=on]:*:[svg]:stroke-amber-900"
                         >
-                            <ArrowUpDown className="w-4 h-4 sm:mr-2" />
+                            <ArrowUpDown className="w-4 h-4" />
                             <span className="hidden sm:inline">Sort by due date</span>
                         </Toggle>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={populateList}
-                            className="cursor-pointer"
-                            size="sm"
-                        >
-                            <span className="hidden sm:inline">Generate Item</span>
-                            <span className="sm:hidden">+</span>
-                        </Button>
                     </div>
                 </div>
                 <div className="flex flex-col justify-start overflow-y-auto h-[400px] sm:h-[500px]">

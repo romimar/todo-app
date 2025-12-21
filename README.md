@@ -1,4 +1,4 @@
-# 📝 Todo App
+# Todo App
 
 A modern, full-stack todo application built with React, TypeScript, Express.js, and Swagger API documentation.
 
@@ -97,7 +97,7 @@ App runs at `http://localhost:5173`
 - **Application**: http://localhost:5173
 - **API Documentation**: http://localhost:8080/api-docs
 
-## 📡 API Endpoints
+## API Endpoints
 
 | Method | Endpoint         | Description     |
 | ------ | ---------------- | --------------- |
