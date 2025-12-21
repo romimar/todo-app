@@ -11,6 +11,7 @@ A modern, full-stack todo application built with React, TypeScript, Express.js, 
 - Show/hide completed items
 - Pagination (4 items per page)
 - Responsive design
+- Efficient data fetching and caching with React Query
 - Interactive API documentation (Swagger UI)
 - Modern UI with Tailwind CSS and Shadcn/ui
 
@@ -33,6 +34,7 @@ A modern, full-stack todo application built with React, TypeScript, Express.js, 
 - Vite (build tool)
 - TailwindCSS
 - Shadcn/ui components
+- TanStack Query (React Query) - data fetching & caching
 - Axios
 
 **Backend:**

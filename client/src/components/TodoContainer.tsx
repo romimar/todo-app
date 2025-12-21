@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Item } from "@/types/formDataType";
 import type { FormDataType } from "@/types/formDataType";
 import Form from "./shared/Form";
@@ -37,12 +38,22 @@ const parseItemDate = (item: Item): Item => {
 };
 
 const TodoContainer = () => {
-    const [itemsList, setItemsList] = useState<Item[]>([]);
+    const queryClient = useQueryClient();
     const [searchedTerm, setSearchedTerm] = useState<string>('');
     const [pressed, setPressed] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage,] = useState(4);
     const [showCompleted, setShowCompleted] = useState(false);
+
+    // Fetching items with React Query
+    const { data: itemsList = [] } = useQuery({
+        queryKey: ['items'],
+        queryFn: async () => {
+            const res = await axios.get('/api/items');
+            const data = res.data as Item[];
+            return data.map(parseItemDate);
+        }
+    });
 
     const filtered = useMemo(() => {
         const q = searchedTerm.toLowerCase();
@@ -70,22 +81,15 @@ const TodoContainer = () => {
         if (currentPage > totalPages) setCurrentPage(totalPages);
     }, [totalPages, currentPage]);
 
-    useEffect(() => {
-        (async () => {
-            const res = await axios.get('/api/items');
-            const data = res.data as Item[];
-            setItemsList(data.map(parseItemDate));
-        })();
-    }, []);
-
     const pageItems = useMemo(() => {
         const start = (currentPage - 1) * rowsPerPage;
         const items = displayItems.slice(start, start + rowsPerPage);
         return items;
     }, [displayItems, currentPage, rowsPerPage]);
 
-    const saveItem = async (formData: FormDataType | Item): Promise<void> => {
-        try {
+    // Creating item mutation
+    const createMutation = useMutation({
+        mutationFn: async (formData: FormDataType | Item) => {
             const response = await axios.post('/api/items', {
                 title: formData.title,
                 description: formData.description,
@@ -94,49 +98,57 @@ const TodoContainer = () => {
                     : undefined,
                 isDone: false,
             });
-
-            const newItem = parseItemDate(response.data);
-            setItemsList(prev => [...prev, newItem]);
+            return parseItemDate(response.data);
+        },
+        onSuccess: (_, formData) => {
+            queryClient.invalidateQueries({ queryKey: ['items'] });
             toast.success(`Item "${formData.title}" has been created.`);
-        } catch (error) {
-            console.error("Error creating item:", error);
+        },
+        onError: () => {
             toast.error("Error creating the item.");
         }
-    };
+    });
 
-    const editItem = async (id: number, data: Item) => {
-        try {
+    // Updating item mutation
+    const updateMutation = useMutation({
+        mutationFn: async ({ id, data }: { id: number; data: Item }) => {
             const response = await axios.put(`/api/items/${id}`, {
                 ...data,
                 date: data.date
                     ? (typeof data.date === 'string' ? data.date : data.date.toISOString())
                     : undefined
             });
-
-            const updated = parseItemDate(response.data);
-            setItemsList(prev => prev.map(it => (it.id === id ? updated : it)));
+            return parseItemDate(response.data);
+        },
+        onSuccess: (_, { data }) => {
+            queryClient.invalidateQueries({ queryKey: ['items'] });
             toast.success(`Item "${data.title}" has been updated.`);
-        } catch (error) {
-            console.error("Error updating item:", error);
+        },
+        onError: () => {
             toast.error("Error updating the item.");
         }
-    };
+    });
 
-    const deleteItem = async (id: number) => {
-        try {
+    // Delete item mutation
+    const deleteMutation = useMutation({
+        mutationFn: async (id: number) => {
             await axios.delete(`/api/items/${id}`);
-            setItemsList(prev => prev.filter(item => item.id !== id));
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['items'] });
             toast.success(`Item has been deleted.`);
-        } catch (error) {
-            console.error("Error deleting item:", error);
+        },
+        onError: () => {
             toast.error("Error deleting the item.");
         }
-    };
+    });
 
-    const toggleItemDone = async (id: number) => {
-        const item = itemsList.find(i => i.id === id);
-        if (!item) return;
-        try {
+    // Toggle item done mutation
+    const toggleMutation = useMutation({
+        mutationFn: async (id: number) => {
+            const item = itemsList.find(i => i.id === id);
+            if (!item) throw new Error('Item not found');
+
             const response = await axios.put(`/api/items/${id}`, {
                 ...item,
                 isDone: !item.isDone,
@@ -144,12 +156,30 @@ const TodoContainer = () => {
                     ? (typeof item.date === 'string' ? item.date : item.date.toISOString())
                     : undefined
             });
-            const updatedItem = parseItemDate(response.data);
-            setItemsList(prev => prev.map(i => i.id === id ? updatedItem : i));
-        } catch (error) {
-            console.error("Error toggling item:", error);
+            return parseItemDate(response.data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['items'] });
+        },
+        onError: () => {
             toast.error("Error updating the item.");
         }
+    });
+
+    const saveItem = async (formData: FormDataType | Item): Promise<void> => {
+        createMutation.mutate(formData);
+    };
+
+    const editItem = async (id: number, data: Item) => {
+        updateMutation.mutate({ id, data });
+    };
+
+    const deleteItem = async (id: number) => {
+        deleteMutation.mutate(id);
+    };
+
+    const toggleItemDone = async (id: number) => {
+        toggleMutation.mutate(id);
     };
 
     const handleSearch = (q: string) => {

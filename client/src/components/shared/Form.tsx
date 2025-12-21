@@ -33,7 +33,7 @@ const Form = ({ title, description, data, onSubmit }: FormProps) => {
         defaultValues: {
             title: data ? data.title : '',
             description: data ? data.description : '',
-            date: data && data.date ? data.date : undefined,
+            date: data && data.date ? (typeof data.date === 'string' ? new Date(data.date) : data.date) : undefined,
         },
     })
 
