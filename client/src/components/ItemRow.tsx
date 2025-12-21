@@ -14,7 +14,6 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { AiOutlineEdit } from "react-icons/ai";
 import { Separator } from "./ui/separator";
 import Form from "./shared/Form";
-import { toast } from "sonner";
 import { Toaster } from "./ui/sonner";
 
 interface Props {
