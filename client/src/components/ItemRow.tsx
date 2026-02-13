@@ -14,7 +14,6 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { AiOutlineEdit } from "react-icons/ai";
 import { Separator } from "./ui/separator";
 import Form from "./shared/Form";
-import { Toaster } from "./ui/sonner";
 
 interface Props {
     item: Item;
@@ -47,7 +46,6 @@ const ItemList = ({
 
     return (
         <>
-            <Toaster position="top-right" richColors className="pointer-events-auto" />
             <div key={item.id} className="flex items-center gap-4 py-2">
                 <div className="flex flex-1 pl-2 pr-4 items-center">
                     <div className="w-7 cursor-pointer" onClick={() => onToggleItemDone(id)}>

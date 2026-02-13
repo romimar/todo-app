@@ -1,10 +1,13 @@
 import TodoContainer from "./components/TodoContainer";
+import { ToastProvider } from "./context/ToastContext";
 
 const App = () => {
 	return (
-		<div className="flex bg-amber-900 min-h-screen">
-			<TodoContainer />
-		</div>
+		<ToastProvider>
+			<div className="flex bg-amber-900 min-h-screen">
+				<TodoContainer />
+			</div>
+		</ToastProvider>
 	)
 }
 

@@ -12,6 +12,7 @@ A modern, full-stack todo application built with React, TypeScript, Express.js, 
 - Pagination (4 items per page)
 - Responsive design
 - Efficient data fetching and caching with React Query
+- Toast notifications for user feedback (sonner)
 - Interactive API documentation (Swagger UI)
 - Modern UI with Tailwind CSS and Shadcn/ui
 
@@ -35,6 +36,7 @@ A modern, full-stack todo application built with React, TypeScript, Express.js, 
 - TailwindCSS
 - Shadcn/ui components
 - TanStack Query (React Query) - data fetching & caching
+- Sonner - toast notifications
 - Axios
 
 **Backend:**
@@ -114,21 +116,37 @@ Full interactive documentation available at `/api-docs`.
 
 ```
 todo-app/
-├── client/                 # React frontend
+├── client/                     # React frontend
+│   ├── public/
 │   ├── src/
-│   │   ├── components/    # React components
-│   │   │   ├── ToDoContainer.tsx
+│   │   ├── assets/
+│   │   ├── components/         # React components
+│   │   │   ├── TodoContainer.tsx
 │   │   │   ├── ItemRow.tsx
-│   │   │   ├── ui/
 │   │   │   ├── ListPagination.tsx
-│   │   │   └── shared/
-│   │   ├── types/         # TypeScript types
+│   │   │   ├── shared/         # Reusable components
+│   │   │   │   ├── Form.tsx
+│   │   │   │   └── InputSearch.tsx
+│   │   │   └── ui/             # Shadcn/ui components
+│   │   ├── context/            # React context providers
+│   │   │   └── ToastContext.tsx
+│   │   ├── lib/                # Utility functions
+│   │   │   └── utils.ts
+│   │   ├── types/              # TypeScript types
+│   │   │   └── formDataType.ts
+│   │   ├── App.tsx
+│   │   ├── index.css
 │   │   └── main.tsx
+│   ├── index.html
+│   ├── components.json
+│   ├── eslint.config.js
 │   ├── package.json
+│   ├── tsconfig.json
 │   └── vite.config.ts
-├── server/                # Express backend
-│   ├── index.js          # Main server file
+├── server/                     # Express backend
+│   ├── index.js                # Main server file
 │   └── package.json
+├── package.json
 ├── .gitignore
 └── README.md
 ```
@@ -140,7 +158,6 @@ todo-app/
 **Backend:**
 
 ```bash
-npm start       # Production mode
 npm run dev     # Development with nodemon
 ```
 

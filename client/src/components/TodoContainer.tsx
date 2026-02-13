@@ -8,7 +8,7 @@ import InputSearch from "./shared/InputSearch";
 import ListPagination from "./ListPagination";
 import { Toggle } from "./ui/toggle";
 import { ArrowUpDown } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/context/ToastContext";
 import axios from 'axios';
 import { Button } from "./ui/button";
 
@@ -39,13 +39,13 @@ const parseItemDate = (item: Item): Item => {
 
 const TodoContainer = () => {
     const queryClient = useQueryClient();
+    const toast = useToast();
     const [searchedTerm, setSearchedTerm] = useState<string>('');
     const [pressed, setPressed] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage,] = useState(4);
     const [showCompleted, setShowCompleted] = useState(false);
 
-    // Fetching items with React Query
     const { data: itemsList = [] } = useQuery({
         queryKey: ['items'],
         queryFn: async () => {
@@ -87,7 +87,6 @@ const TodoContainer = () => {
         return items;
     }, [displayItems, currentPage, rowsPerPage]);
 
-    // Creating item mutation
     const createMutation = useMutation({
         mutationFn: async (formData: FormDataType | Item) => {
             const response = await axios.post('/api/items', {
@@ -109,7 +108,6 @@ const TodoContainer = () => {
         }
     });
 
-    // Updating item mutation
     const updateMutation = useMutation({
         mutationFn: async ({ id, data }: { id: number; data: Item }) => {
             const response = await axios.put(`/api/items/${id}`, {
@@ -129,7 +127,6 @@ const TodoContainer = () => {
         }
     });
 
-    // Delete item mutation
     const deleteMutation = useMutation({
         mutationFn: async (id: number) => {
             await axios.delete(`/api/items/${id}`);
@@ -143,7 +140,6 @@ const TodoContainer = () => {
         }
     });
 
-    // Toggle item done mutation
     const toggleMutation = useMutation({
         mutationFn: async (id: number) => {
             const item = itemsList.find(i => i.id === id);
@@ -267,7 +263,7 @@ const TodoContainer = () => {
                     />
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 
